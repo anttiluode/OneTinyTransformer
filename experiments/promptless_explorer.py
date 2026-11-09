@@ -148,7 +148,8 @@ def explore(m, seed, policy):
             'unique_selected':len(set(codes)), 'last32_unique':len(set(codes[-32:])),
             'cycle_period_le32':cycle, 'mean_logit_entropy':round(float(np.mean(entropy)),4),
             'mean_attention_jsd':round(float(np.mean(disagreement)),4),
-            'mean_consecutive_cosine':round(float(np.mean(similarity)),4), 'trace_every8':trace}
+            'mean_consecutive_cosine':round(float(np.mean(similarity)),4), 'trace_every8':trace,
+            'selected_sequence':chosen}
 
 
 def active_sensing(m, trials=480, noise=0.55, budget=12, seed=20261109):
