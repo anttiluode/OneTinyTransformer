@@ -1,0 +1,369 @@
+{
+  "setup": {
+    "seed": 20261109,
+    "train_word_ids": [
+      44,
+      18,
+      55,
+      28,
+      45,
+      34,
+      50,
+      21,
+      57,
+      13,
+      22,
+      36,
+      35,
+      38,
+      31,
+      67,
+      37,
+      20,
+      12,
+      51,
+      33,
+      41,
+      6,
+      42,
+      11,
+      56,
+      4,
+      14,
+      69,
+      54,
+      29,
+      10,
+      2,
+      17,
+      53,
+      8,
+      60,
+      5,
+      64,
+      26,
+      9,
+      7,
+      1,
+      24,
+      47
+    ],
+    "heldout_word_ids": [
+      70,
+      16,
+      61,
+      15,
+      19,
+      43,
+      48,
+      49,
+      27,
+      23,
+      52,
+      40,
+      63,
+      58,
+      30,
+      62,
+      59,
+      68,
+      32,
+      66,
+      25,
+      3,
+      39,
+      46,
+      65
+    ],
+    "train_word_count": 45,
+    "heldout_word_count": 25,
+    "candidates_per_trial": 8,
+    "noise_sd": 0.9,
+    "train_steps": 300,
+    "train_batch": 96,
+    "test_trials": 960,
+    "training": "all-action counterfactual reward from true hidden candidate; no variance imitation",
+    "evaluation": "disjoint word embeddings, no target information in policy inputs",
+    "pretrained_blocks": "copy QKV/output/MLP weights from existing index.html, then tune/freeze as stated",
+    "architecture_change": "bidirectional attention over 24 candidate coordinate tokens, using original RoPE and four blocks",
+    "decoder": "same Gaussian Bayesian classifier for every arm; it updates from observed coordinates only",
+    "limitations": "shortlists consist of a finite 70-word vocabulary; ideal decoder; no genuine external world"
+  },
+  "train_trace": {
+    "pretrained_tuned": [
+      {
+        "step": 1,
+        "loss": -0.00557,
+        "sec": 0.0
+      },
+      {
+        "step": 76,
+        "loss": -0.03829,
+        "sec": 2.4
+      },
+      {
+        "step": 151,
+        "loss": -0.07761,
+        "sec": 4.8
+      },
+      {
+        "step": 226,
+        "loss": -0.08077,
+        "sec": 7.2
+      },
+      {
+        "step": 300,
+        "loss": -0.1219,
+        "sec": 9.6
+      }
+    ],
+    "pretrained_frozen": [
+      {
+        "step": 1,
+        "loss": -0.00609,
+        "sec": 0.0
+      },
+      {
+        "step": 76,
+        "loss": 0.00724,
+        "sec": 2.2
+      },
+      {
+        "step": 151,
+        "loss": -0.03421,
+        "sec": 4.3
+      },
+      {
+        "step": 226,
+        "loss": -0.09212,
+        "sec": 6.5
+      },
+      {
+        "step": 300,
+        "loss": -0.09681,
+        "sec": 8.6
+      }
+    ],
+    "random_tuned": [
+      {
+        "step": 1,
+        "loss": -0.00893,
+        "sec": 0.0
+      },
+      {
+        "step": 76,
+        "loss": -0.08392,
+        "sec": 2.4
+      },
+      {
+        "step": 151,
+        "loss": -0.11098,
+        "sec": 4.8
+      },
+      {
+        "step": 226,
+        "loss": 0.01941,
+        "sec": 7.2
+      },
+      {
+        "step": 300,
+        "loss": -0.13545,
+        "sec": 9.5
+      }
+    ]
+  },
+  "scores": {
+    "fixed": {
+      "accuracy": {
+        "1": 0.2854,
+        "2": 0.3896,
+        "4": 0.6073,
+        "6": 0.7396,
+        "8": 0.8469,
+        "12": 0.9365
+      },
+      "mean_log_p_true": {
+        "1": -1.7318,
+        "2": -1.5298,
+        "4": -1.0284,
+        "6": -0.6995,
+        "8": -0.4274,
+        "12": -0.1734
+      },
+      "first_choices": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    "random": {
+      "accuracy": {
+        "1": 0.2635,
+        "2": 0.4042,
+        "4": 0.625,
+        "6": 0.7677,
+        "8": 0.851,
+        "12": 0.9333
+      },
+      "mean_log_p_true": {
+        "1": -1.7759,
+        "2": -1.4591,
+        "4": -0.9448,
+        "6": -0.6235,
+        "8": -0.4035,
+        "12": -0.1574
+      },
+      "first_choices": [
+        18,
+        21,
+        15,
+        23,
+        13,
+        0,
+        0,
+        9,
+        23,
+        11,
+        22,
+        5
+      ]
+    },
+    "disagreement": {
+      "accuracy": {
+        "1": 0.3531,
+        "2": 0.5906,
+        "4": 0.8781,
+        "6": 0.9646,
+        "8": 0.9771,
+        "12": 0.9948
+      },
+      "mean_log_p_true": {
+        "1": -1.5104,
+        "2": -1.0163,
+        "4": -0.3277,
+        "6": -0.1296,
+        "8": -0.0649,
+        "12": -0.0133
+      },
+      "first_choices": [
+        21,
+        22,
+        13,
+        7,
+        22,
+        13,
+        13,
+        0,
+        8,
+        22,
+        21,
+        22
+      ]
+    },
+    "pretrained_tuned": {
+      "accuracy": {
+        "1": 0.3198,
+        "2": 0.5073,
+        "4": 0.7302,
+        "6": 0.8406,
+        "8": 0.8938,
+        "12": 0.9708
+      },
+      "mean_log_p_true": {
+        "1": -1.6127,
+        "2": -1.2222,
+        "4": -0.6997,
+        "6": -0.4287,
+        "8": -0.2646,
+        "12": -0.0848
+      },
+      "first_choices": [
+        21,
+        0,
+        13,
+        20,
+        0,
+        23,
+        13,
+        12,
+        7,
+        12,
+        13,
+        21
+      ]
+    },
+    "pretrained_frozen": {
+      "accuracy": {
+        "1": 0.3406,
+        "2": 0.4865,
+        "4": 0.7188,
+        "6": 0.8448,
+        "8": 0.9167,
+        "12": 0.9688
+      },
+      "mean_log_p_true": {
+        "1": -1.6141,
+        "2": -1.2333,
+        "4": -0.7446,
+        "6": -0.4179,
+        "8": -0.2327,
+        "12": -0.0898
+      },
+      "first_choices": [
+        7,
+        22,
+        8,
+        7,
+        21,
+        0,
+        21,
+        23,
+        12,
+        22,
+        21,
+        9
+      ]
+    },
+    "random_tuned": {
+      "accuracy": {
+        "1": 0.3521,
+        "2": 0.5073,
+        "4": 0.726,
+        "6": 0.8417,
+        "8": 0.9208,
+        "12": 0.9708
+      },
+      "mean_log_p_true": {
+        "1": -1.5984,
+        "2": -1.1855,
+        "4": -0.674,
+        "6": -0.3933,
+        "8": -0.2335,
+        "12": -0.0749
+      },
+      "first_choices": [
+        4,
+        15,
+        8,
+        4,
+        0,
+        22,
+        13,
+        15,
+        8,
+        9,
+        10,
+        21
+      ]
+    }
+  }
+}
