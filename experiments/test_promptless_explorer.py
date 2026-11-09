@@ -35,16 +35,18 @@ class VerifyAgainstOriginalJS(unittest.TestCase):
         np.testing.assert_allclose(heads[0],ATT_FIRST,atol=1e-12,rtol=0)
         np.testing.assert_allclose(heads[7],ATT_LAST,atol=1e-12,rtol=0)
 
-    def test_layernorm_stability_and_causality(self):
+    def test_layernorm_stability_and_attention_simplex(self):
         m = self.model
         np.testing.assert_allclose(layernorm(np.ones((2,24))),0.,atol=1e-12)
-        first = m['embed'][57]
-        x = m['embed'][[57,54,27,57]]
-        # Causal mask: changing all future tokens cannot affect first position.
-        # Compare the identical first-token recurrence under both contexts:
-        a = forward(m,x[:1])
-        b = forward(m,first[None,:])
-        np.testing.assert_allclose(a,b,atol=1e-12,rtol=0)
+        for n in range(1,5):
+            output, heads = forward(m,m['embed'][[57,54,27,57][:n]],return_heads=True)
+            self.assertTrue(np.isfinite(output).all())
+            self.assertEqual(len(heads),8)
+            for p in heads:
+                self.assertEqual(len(p),n)
+                self.assertTrue(np.isfinite(p).all())
+                self.assertTrue((p >= 0).all())
+                self.assertAlmostEqual(float(np.sum(p)),1.,places=12)
 
 
 if __name__ == '__main__': unittest.main()
