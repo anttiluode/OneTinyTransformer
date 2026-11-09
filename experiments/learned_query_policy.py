@@ -10,13 +10,15 @@ Training rewards come from simulated observations of a hidden target, not from
 imitating the analytic posterior-variance ('disagreement') policy.
 
 Run from the repository root:
-    python experiments/learned_query_policy.py --steps 300 --trials 960
+    python experiments/learned_query_policy.py --steps 500
 Dependencies: numpy, torch. Uses no GPU, downloads or external dataset.
 """
 import argparse
+import copy
 import json
 import math
 import random
+import sys
 import time
 from pathlib import Path
 
@@ -59,6 +61,7 @@ class EpisodeGenerator:
         rng = self.rng
         anchors = rng.integers(0, len(self.e), size=n)
         group = self.neighbours[anchors].copy()
+        # Shuffle candidate positions independently, otherwise the anchor slot is special.
         shuffles = np.argsort(rng.random((n, NC)), axis=1)
         group = np.take_along_axis(group, shuffles, axis=1)
         tpl = self.e[group]
@@ -109,6 +112,8 @@ class ReusedBlock(nn.Module):
                     getattr(self, nm).weight.copy_(torch.tensor(weights[key], dtype=torch.float32))
 
     def forward(self, x):
+        # Non-causal attention: *all* candidate coordinate values are known.
+        # Querying a hidden observation value is still prohibited by the mask.
         B, T, _ = x.shape
         h = F.layer_norm(x, (D,))
         q = self.q(h).reshape(B, T, 2, 12).transpose(1, 2)
@@ -135,13 +140,15 @@ class ReusedBlock(nn.Module):
 class Policy(nn.Module):
     def __init__(self, m, pretrained=True, train_backbone=True):
         super().__init__()
-        # Eight candidate values; eight posterior masses; observed value and mask.
-        # No analytic variance, information gain or oracle score.
+        # 8 raw candidate values; 8 current posterior masses; observed value,
+        # observed mask. No analytic variance, information gain or oracle score.
         self.input = nn.Linear(18, D)
         self.blocks = nn.ModuleList([ReusedBlock(b, pretrained) for b in m['blocks']])
         self.head = nn.Sequential(nn.LayerNorm(D), nn.Linear(D, D), nn.GELU(),nn.Linear(D, 1))
         if not train_backbone:
             for p in self.blocks.parameters(): p.requires_grad_(False)
+        self.pretrained = pretrained
+        self.train_backbone = train_backbone
 
     def forward(self, tpl, observed, mask, noise):
         p = log_posteriors(tpl, observed, mask, noise).exp()
@@ -153,7 +160,7 @@ class Policy(nn.Module):
         return logits.masked_fill(mask.bool(), -1e5)
 
 
-def train_policy(m, gen, noise, steps=300, pretrained=True, train_backbone=True, seed=77, batch_size=96):
+def train_policy(m, gen, noise, steps=500, pretrained=True, train_backbone=True, seed=77, batch_size=96):
     seed_all(seed)
     policy = Policy(m, pretrained, train_backbone)
     opt = torch.optim.AdamW([
@@ -167,8 +174,9 @@ def train_policy(m, gen, noise, steps=300, pretrained=True, train_backbone=True,
         reward = counterfactual_rewards(tpl,obs,mask,targets,noise)
         logits = policy(tpl, obs, mask, noise)
         prob = logits.softmax(dim=-1)
-        # All-action counterfactual policy gradient; not variance imitation.
-        r = reward - (reward * (~mask.bool())).sum(dim=1,keepdim=True) / (~mask.bool()).sum(dim=1,keepdim=True)
+        # All-action counterfactual policy gradient (not imitation of the
+        # variance rule). Center baseline to lower variance.
+        r = (reward - (reward * (~mask.bool())).sum(dim=1,keepdim=True) / (~mask.bool()).sum(dim=1,keepdim=True))
         loss = -(prob * r.detach()).sum(dim=1).mean() - .002 * (-(prob*prob.clamp_min(1e-8).log()).sum(1)).mean()
         if not torch.isfinite(loss): raise RuntimeError('nonfinite training loss')
         opt.zero_grad();loss.backward();nn.utils.clip_grad_norm_(policy.parameters(),1.0);opt.step()
@@ -247,6 +255,7 @@ def run(args):
                      'limitations':'shortlists consist of a finite 70-word vocabulary; ideal decoder; no genuine external world'},
             'train_trace':traces,'scores':scores}
     dest=HERE/'results_learned_policy.json';dest.write_text(json.dumps(result,indent=2)+'\n')
+    # Only the trained policy weights, no copy of large original model weights.
     torch.save(models['pretrained_tuned'].state_dict(), HERE/'learned_policy.pt')
     print('Wrote',dest,flush=True)
     return result
@@ -254,8 +263,8 @@ def run(args):
 
 if __name__=='__main__':
     ap=argparse.ArgumentParser()
-    ap.add_argument('--steps',type=int,default=300)
+    ap.add_argument('--steps',type=int,default=500)
     ap.add_argument('--batch',type=int,default=96)
     ap.add_argument('--noise',type=float,default=.9)
-    ap.add_argument('--trials',type=int,default=960)
+    ap.add_argument('--trials',type=int,default=480)
     run(ap.parse_args())
