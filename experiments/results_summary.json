@@ -1,0 +1,206 @@
+{
+  "model": "Original OneTinyTransformer trained weights from index.html",
+  "method": "fresh causal forward pass each step; up to 24 latent states as virtual tokens; no external text prompt",
+  "active_sensing": {
+    "trials": 480,
+    "noise_sd": 0.55,
+    "candidate_count": 8,
+    "shortlist": "nearest eight to random anchor; target uniform afterward",
+    "identical_observation_noise_across_policies": true,
+    "accuracy_at_observations": {
+      "fixed": {
+        "2": 0.5396,
+        "4": 0.7875,
+        "6": 0.9062,
+        "8": 0.9646,
+        "12": 0.9938
+      },
+      "random": {
+        "2": 0.5188,
+        "4": 0.775,
+        "6": 0.9292,
+        "8": 0.975,
+        "12": 0.9958
+      },
+      "disagreement": {
+        "2": 0.7604,
+        "4": 0.9875,
+        "6": 1,
+        "8": 1,
+        "12": 1
+      },
+      "full24": {
+        "2": 0.5396,
+        "4": 0.7875,
+        "6": 0.9062,
+        "8": 0.9646,
+        "12": 0.9938,
+        "24": 1
+      }
+    },
+    "note": "full24 is fixed coordinate order, including a 24-observation ceiling; its shorter prefixes are identical to fixed."
+  },
+  "control_autonomous": {
+    "unpaired_output": {
+      "greedy": {
+        "cycles": [
+          1,
+          1,
+          1,
+          1,
+          1,
+          1
+        ],
+        "last32_unique_mean": 1
+      },
+      "disagreement": {
+        "cycles": [
+          null,
+          null,
+          null,
+          null,
+          null,
+          null
+        ],
+        "last32_unique_mean": 7.17
+      }
+    },
+    "unpaired_embeddings": {
+      "greedy": {
+        "cycles": [
+          1,
+          null,
+          21,
+          null,
+          1,
+          1
+        ],
+        "last32_unique_mean": 3
+      },
+      "disagreement": {
+        "cycles": [
+          1,
+          null,
+          1,
+          null,
+          null,
+          null
+        ],
+        "last32_unique_mean": 3.33
+      }
+    }
+  },
+  "control_sensing_random_vectors": {
+    "trials": 480,
+    "noise_sd": 0.55,
+    "candidate_count": 8,
+    "shortlist": "nearest eight to random anchor; target uniform afterward",
+    "identical_observation_noise_across_policies": true,
+    "accuracy_at_observations": {
+      "fixed": {
+        "2": 0.5021,
+        "4": 0.7937,
+        "6": 0.9167,
+        "8": 0.9646,
+        "12": 0.9979
+      },
+      "random": {
+        "2": 0.5687,
+        "4": 0.8333,
+        "6": 0.9354,
+        "8": 0.975,
+        "12": 0.9938
+      },
+      "disagreement": {
+        "2": 0.7521,
+        "4": 0.9875,
+        "6": 1,
+        "8": 1,
+        "12": 1
+      },
+      "full24": {
+        "2": 0.5021,
+        "4": 0.7937,
+        "6": 0.9167,
+        "8": 0.9646,
+        "12": 0.9979,
+        "24": 1
+      }
+    },
+    "note": "full24 is fixed coordinate order, including a 24-observation ceiling; its shorter prefixes are identical to fixed."
+  },
+  "autonomous": {
+    "seeds": [
+      11,
+      23,
+      37,
+      51,
+      67,
+      83
+    ],
+    "steps": 96,
+    "candidate_count": 6,
+    "summary": {
+      "replay": {
+        "last32_unique_mean": 32,
+        "unique_selected_mean": 96,
+        "mean_logit_entropy": 0.056,
+        "mean_attention_jsd": 0.423,
+        "cycle_le32_seeds": 0,
+        "cycle_periods": [
+          null,
+          null,
+          null,
+          null,
+          null,
+          null
+        ]
+      },
+      "greedy": {
+        "last32_unique_mean": 14.17,
+        "unique_selected_mean": 19.17,
+        "mean_logit_entropy": 0.418,
+        "mean_attention_jsd": 0.669,
+        "cycle_le32_seeds": 0,
+        "cycle_periods": [
+          null,
+          null,
+          null,
+          null,
+          null,
+          null
+        ]
+      },
+      "random": {
+        "last32_unique_mean": 19.5,
+        "unique_selected_mean": 34.67,
+        "mean_logit_entropy": 0.235,
+        "mean_attention_jsd": 0.543,
+        "cycle_le32_seeds": 1,
+        "cycle_periods": [
+          null,
+          null,
+          1,
+          null,
+          null,
+          null
+        ]
+      },
+      "disagreement": {
+        "last32_unique_mean": 8.17,
+        "unique_selected_mean": 19.5,
+        "mean_logit_entropy": 0.701,
+        "mean_attention_jsd": 0.792,
+        "cycle_le32_seeds": 4,
+        "cycle_periods": [
+          3,
+          3,
+          null,
+          3,
+          null,
+          3
+        ]
+      }
+    }
+  }
+}
