@@ -4,7 +4,7 @@
 
 [Open the interactive demo](https://anttiluode.github.io/OneTinyTransformer/) · [Explore the source](index.html)
 
-![Experiment: active observation selection](experiments/learned_query_policy_results.png)
+![Experiment: active observation selection](experiments/learned_query_policy_results.svg)
 
 ## What is this?
 
